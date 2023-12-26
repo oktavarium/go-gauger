@@ -10,9 +10,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/oktavarium/go-gauger/internal/server/internal/logger"
 	"github.com/oktavarium/go-gauger/internal/shared"
-	"go.uber.org/zap"
 )
 
+// ValueHandle - получить метрику по типу и имени
 func (h *Handler) ValueHandle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	metricType := strings.ToLower(chi.URLParam(r, "type"))
@@ -41,20 +41,15 @@ func (h *Handler) ValueHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(valStr))
+	_, err := w.Write([]byte(valStr))
+	if err != nil {
+		logger.LogError("ValueHandle", err)
+	}
 }
 
+// ValueHandle - получить метрику по типу и имени в формате JSON
 func (h *Handler) ValueJSONHandle(w http.ResponseWriter, r *http.Request) {
 	var err error
-	defer func() {
-		if err != nil {
-			logger.Logger().Info("error",
-				zap.String("func", "ValueJSONHandle"),
-				zap.Error(err),
-			)
-		}
-	}()
-
 	w.Header().Set("Content-Type", "application/json")
 	if r.Header.Get("Content-Type") != "application/json" {
 		w.WriteHeader(http.StatusUnsupportedMediaType)
@@ -72,6 +67,7 @@ func (h *Handler) ValueJSONHandle(w http.ResponseWriter, r *http.Request) {
 	// checking metric name
 	if len(metric.ID) == 0 {
 		err = fmt.Errorf("empty metric id received")
+		logger.LogError("ValueJSONHandle", err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -101,6 +97,7 @@ func (h *Handler) ValueJSONHandle(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(&metric)
 	if err != nil {
+		logger.LogError("ValueJSONHandle", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

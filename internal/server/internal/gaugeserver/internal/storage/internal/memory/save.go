@@ -10,6 +10,8 @@ func (s *storage) SaveGauge(
 	name string,
 	val float64,
 ) error {
+	s.mx.Lock()
+	defer s.mx.Unlock()
 	s.gauge[name] = val
 	if s.sync {
 		return s.save()
@@ -22,6 +24,9 @@ func (s *storage) save() error {
 	if err != nil {
 		return fmt.Errorf("error on saving all: %w", err)
 	}
+
+	s.mx.Lock()
+	defer s.mx.Unlock()
 	err = s.archive.Save(data)
 	if err != nil {
 		return fmt.Errorf("error on saving all: %w", err)

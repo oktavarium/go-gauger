@@ -3,6 +3,8 @@ package storage
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestSaveGauge(t *testing.T) {
@@ -29,7 +31,8 @@ func TestSaveGauge(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			storage.SaveGauge(context.Background(), test.metrics.name, test.metrics.val)
+			err := storage.SaveGauge(context.Background(), test.metrics.name, test.metrics.val)
+			require.NoError(t, err)
 			val, ok := storage.GetGauger(context.Background(), test.metrics.name)
 			if ok != test.ok {
 				t.Errorf("Want: %T, got: %T", test.ok, ok)
@@ -74,7 +77,8 @@ func TestUpdateCounter(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			storage.UpdateCounter(context.Background(), test.metrics.name, test.metrics.val)
+			_, err := storage.UpdateCounter(context.Background(), test.metrics.name, test.metrics.val)
+			require.NoError(t, err)
 			val, ok := storage.GetCounter(context.Background(), test.metrics.name)
 			if ok != test.ok {
 				t.Errorf("Want: %T, got: %T", test.ok, ok)

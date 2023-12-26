@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -55,6 +56,8 @@ func sender(ctx context.Context,
 	inCh <-chan []byte) {
 
 	for v := range inCh {
-		reportMetrics(address, key, v)
+		if err := reportMetrics(address, key, v); err != nil {
+			slog.Any("error on reporting metrics", err)
+		}
 	}
 }

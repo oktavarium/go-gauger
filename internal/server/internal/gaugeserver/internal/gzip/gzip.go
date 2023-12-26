@@ -13,6 +13,10 @@ type compressedWriter struct {
 	gzipWriter *gzip.Writer
 }
 
+var (
+	_ http.ResponseWriter = (*compressedWriter)(nil)
+)
+
 func newGzipWriter(w http.ResponseWriter) *compressedWriter {
 	gzipWriter := gzip.NewWriter(w)
 	w.Header().Set("Content-Encoding", "gzip")
@@ -66,6 +70,7 @@ func (c *compressedReader) Close() error {
 	return c.zr.Close()
 }
 
+// GzipMiddleware - метод посредника для архивирования и разархивирования запросов
 func GzipMiddleware(next http.Handler) http.Handler {
 	hf := func(w http.ResponseWriter, r *http.Request) {
 		// сохраняем оригинальный врайтер

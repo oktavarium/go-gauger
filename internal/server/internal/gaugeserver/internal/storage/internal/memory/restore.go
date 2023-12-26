@@ -7,7 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/oktavarium/go-gauger/internal/server/internal/logger"
 	"github.com/oktavarium/go-gauger/internal/shared"
+	"go.uber.org/zap"
 )
 
 func (s *storage) restore() error {
@@ -24,9 +26,19 @@ func (s *storage) restore() error {
 		}
 		switch metrics.MType {
 		case string(shared.GaugeType):
-			s.SaveGauge(context.Background(), metrics.ID, *metrics.Value)
+			if err := s.SaveGauge(context.Background(), metrics.ID, *metrics.Value); err != nil {
+				logger.Logger().Error("error",
+					zap.String("func", "restore"),
+					zap.Error(err),
+				)
+			}
 		case string(shared.CounterType):
-			s.UpdateCounter(context.Background(), metrics.ID, *metrics.Delta)
+			if _, err := s.UpdateCounter(context.Background(), metrics.ID, *metrics.Delta); err != nil {
+				logger.Logger().Error("error",
+					zap.String("func", "restore"),
+					zap.Error(err),
+				)
+			}
 		}
 	}
 

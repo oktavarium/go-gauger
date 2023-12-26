@@ -9,6 +9,7 @@ import (
 	"github.com/oktavarium/go-gauger/internal/shared"
 )
 
+// compressMetrics - сжимает метрики через gzip
 func compressMetrics(metrics []shared.Metric) ([]byte, error) {
 	var compressedJSON bytes.Buffer
 	wr := gzip.NewWriter(&compressedJSON)

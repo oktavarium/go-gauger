@@ -25,17 +25,25 @@ counter
 );
 `
 
-func (s *storage) bootstrap(ctx context.Context) error {
+func (s *storage) bootstrap(ctx context.Context) (err error) {
 	tx, err := s.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return fmt.Errorf("error occured on opening tx: %w", err)
 	}
-	defer tx.Rollback(ctx)
+
+	defer func() {
+		if err != nil {
+			err = tx.Rollback(ctx)
+		} else {
+			err = tx.Commit(ctx)
+		}
+
+	}()
 
 	_, err = tx.Exec(ctx, createTablesQuery)
 	if err != nil {
 		return fmt.Errorf("error occured on creating tables: %w", err)
 	}
 
-	return tx.Commit(ctx)
+	return nil
 }

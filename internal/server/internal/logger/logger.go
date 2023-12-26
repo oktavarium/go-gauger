@@ -10,6 +10,10 @@ import (
 
 var logger *zap.Logger = zap.NewNop()
 
+var (
+	_ http.ResponseWriter = (*loggedResponseWriter)(nil)
+)
+
 type info struct {
 	size   int
 	status int
@@ -20,25 +24,37 @@ type loggedResponseWriter struct {
 	i *info
 }
 
+// Header - реализация метода Header интерфейса http.ResponseWriter
 func (lrw *loggedResponseWriter) Header() http.Header {
 	return lrw.w.Header()
 }
 
+// Write - реализация метода Write интерфейса http.ResponseWriter
 func (lrw *loggedResponseWriter) Write(body []byte) (int, error) {
 	size, err := lrw.w.Write(body)
 	lrw.i.size = size
 	return size, err
 }
 
+// WriteHeader - реализация метода WriteHeader интерфейса http.ResponseWriter
 func (lrw *loggedResponseWriter) WriteHeader(statusCode int) {
 	lrw.i.status = statusCode
 	lrw.w.WriteHeader(statusCode)
 }
 
+// Logger - метод доступа к логгеру
 func Logger() *zap.Logger {
 	return logger
 }
 
+func LogError(funcName string, err error) {
+	Logger().Error("error",
+		zap.String("func", "GetHandle"),
+		zap.Error(err),
+	)
+}
+
+// Init - метод инициализации логгера с уровнем по умолчанию
 func Init(level string) error {
 	atomicLevel, err := zap.ParseAtomicLevel(level)
 	if err != nil {
@@ -56,6 +72,7 @@ func Init(level string) error {
 	return nil
 }
 
+// LoggerMiddleware - метод посредника для логирования данных запроса
 func LoggerMiddleware(next http.Handler) http.Handler {
 	hf := func(w http.ResponseWriter, r *http.Request) {
 		uri := r.RequestURI

@@ -7,6 +7,7 @@ import (
 	"fmt"
 )
 
+// hashData - формирует хэш данных по ключу
 func hashData(key []byte, data []byte) (string, error) {
 	mac := hmac.New(sha256.New, key)
 	if _, err := mac.Write(data); err != nil {

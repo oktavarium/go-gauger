@@ -17,6 +17,7 @@ type metrics struct {
 	counters map[string]int64
 }
 
+// NewMetrics конструктор хранилища метрик между отправками на сервер
 func NewMetrics() metrics {
 	return metrics{
 		make(map[string]float64),
@@ -24,6 +25,7 @@ func NewMetrics() metrics {
 	}
 }
 
+// readMetrics - читает все метрики через runtime.ReadMemStats
 func readMetrics(m metrics) error {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
@@ -62,6 +64,7 @@ func readMetrics(m metrics) error {
 	return nil
 }
 
+// readMetrics - читает метрики через mem.VirtualMemory
 func readPsMetrics(m metrics) error {
 	vm, err := mem.VirtualMemory()
 	if err != nil {
@@ -81,6 +84,7 @@ func readPsMetrics(m metrics) error {
 	return nil
 }
 
+// packMetrics - упаковывает все метики методом compressMetrics
 func packMetrics(m metrics) ([]byte, error) {
 	allMetrics := make([]shared.Metric, 0, len(m.gauges)+len(m.counters))
 	for k, v := range m.gauges {
@@ -115,7 +119,9 @@ func collector(
 		for {
 			select {
 			case <-ticker.C:
-				collect(metrics)
+				if err := collect(metrics); err != nil {
+					return err
+				}
 				packedMatrics, err := packMetrics(metrics)
 				if err != nil {
 					return err

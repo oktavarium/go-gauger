@@ -10,6 +10,8 @@ func (s *storage) UpdateCounter(
 	name string,
 	val int64,
 ) (int64, error) {
+	s.mx.Lock()
+	defer s.mx.Unlock()
 	s.counter[name] += val
 	if s.sync {
 		err := s.save()

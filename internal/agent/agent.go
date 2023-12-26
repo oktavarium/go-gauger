@@ -9,6 +9,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// Run - запускает агент сбора и отправки метрик на сервер
 func Run() error {
 	flagsConfig, err := loadConfig()
 	if err != nil {
@@ -39,6 +40,7 @@ func Run() error {
 	return nil
 }
 
+// fanIn - метод мультиплексирования входящих данных от множества
 func fanIn(chs ...<-chan []byte) <-chan []byte {
 	chOut := make(chan []byte, len(chs))
 	var wg sync.WaitGroup

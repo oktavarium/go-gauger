@@ -13,11 +13,13 @@ import (
 	"github.com/oktavarium/go-gauger/internal/server/internal/logger"
 )
 
+// GaugeServer - управляющий сервис для сбора метрик
 type GaugerServer struct {
 	router *chi.Mux
 	addr   string
 }
 
+// NewGaugeServer - конструктор сервиса ядл сбора метрик
 func NewGaugerServer(addr string,
 	filename string,
 	restore bool,
@@ -57,6 +59,7 @@ func NewGaugerServer(addr string,
 	return server, nil
 }
 
+// ListenAndServer - запуск сервиса
 func (g *GaugerServer) ListenAndServe() error {
 	return http.ListenAndServe(g.addr, g.router)
 }

@@ -7,13 +7,16 @@ import (
 	"github.com/oktavarium/go-gauger/internal/server/internal/logger"
 )
 
+// Run - запускает сервис обработки метрик
 func Run() error {
 	flagsConfig, err := loadConfig()
 	if err != nil {
 		return fmt.Errorf("error on loading config: %w", err)
 	}
 
-	logger.Init(flagsConfig.LogLevel)
+	if err := logger.Init(flagsConfig.LogLevel); err != nil {
+		return fmt.Errorf("error init logger: %w", err)
+	}
 
 	gs, err := gaugeserver.NewGaugerServer(flagsConfig.Address,
 		flagsConfig.FilePath,

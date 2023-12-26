@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/oktavarium/go-gauger/internal/server/internal/gaugeserver/internal/storage/internal/memory/archive"
+	"github.com/oktavarium/go-gauger/internal/server/internal/logger"
+	"go.uber.org/zap"
 )
 
 type storage struct {
@@ -15,6 +18,7 @@ type storage struct {
 	counter map[string]int64
 	archive archive.FileArchive
 	sync    bool
+	mx      sync.RWMutex
 }
 
 func NewStorage(
@@ -43,7 +47,12 @@ func NewStorage(
 		go func() {
 			ticker := time.NewTicker(timeout)
 			for range ticker.C {
-				s.save()
+				if err := s.save(); err != nil {
+					logger.Logger().Error("error",
+						zap.String("func", "NewStorage"),
+						zap.Error(err),
+					)
+				}
 			}
 		}()
 	}

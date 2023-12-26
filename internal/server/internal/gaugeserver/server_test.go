@@ -3,33 +3,24 @@ package gaugeserver
 import (
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
+	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func testRequest(t *testing.T, ts *httptest.Server,
-	method, path string) (*http.Response, string) {
-	req, err := http.NewRequest(method, ts.URL+path, nil)
-	require.NoError(t, err)
+func TestNewGaugeServer(t *testing.T) {
+	_, err := NewGaugerServer(":8080", "tmp.file", false, 1*time.Minute, "", "key")
 
-	resp, err := ts.Client().Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close()
-
-	respBody, err := io.ReadAll(resp.Body)
-	require.NoError(t, err)
-
-	return resp, string(respBody)
 }
 
 func TestRouter(t *testing.T) {
-	server, _ := NewGaugerServer("localhost", "/tmp/tmp.txt", false, 0, "", "")
-	ts := httptest.NewServer(server.router)
-	defer ts.Close()
+	server, err := NewGaugerServer("localhost:8088", "temp.txt", true, 1*time.Minute, "", "cxvxv")
+	require.NoError(t, err)
 
+	go server.ListenAndServe()
+	time.Sleep(5 * time.Second)
 	tests := []struct {
 		name   string
 		method string
@@ -50,9 +41,17 @@ func TestRouter(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		resp, get := testRequest(t, ts, test.method, test.url)
+
+		req, err := http.NewRequest(test.method, "http://localhost:8088"+test.url, nil)
+		require.NoError(t, err)
+		resp, err := http.DefaultClient.Do(req)
+		require.NoError(t, err)
+
+		// resp, get := testRequest(t, ts, test.method, test.url)
 		defer resp.Body.Close()
-		assert.Equal(t, test.status, resp.StatusCode, test.name)
-		assert.Equal(t, test.want, get, test.name)
+		respBody, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+		require.Equal(t, test.status, resp.StatusCode, test.name)
+		require.Equal(t, test.want, string(respBody), test.name)
 	}
 }
