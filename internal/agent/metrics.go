@@ -85,7 +85,7 @@ func readPsMetrics(m metrics) error {
 }
 
 // packMetrics - упаковывает все метики методом compressMetrics
-func packMetrics(m metrics) ([]byte, error) {
+func packMetrics(m metrics) ([]shared.Metric, error) {
 	allMetrics := make([]shared.Metric, 0, len(m.gauges)+len(m.counters))
 	for k, v := range m.gauges {
 		v := v
@@ -97,9 +97,9 @@ func packMetrics(m metrics) ([]byte, error) {
 		allMetrics = append(allMetrics, shared.NewCounterMetric(k, &v))
 	}
 
-	compressedMetrics, err := compressMetrics(allMetrics)
+	//compressedMetrics, err := compressMetrics(allMetrics)
 
-	return compressedMetrics, err
+	return allMetrics, nil
 }
 
 func collector(
@@ -107,9 +107,9 @@ func collector(
 	collect func(metrics) error,
 	eg *errgroup.Group,
 	d time.Duration,
-) chan []byte {
+) chan []shared.Metric {
 
-	chOut := make(chan []byte)
+	chOut := make(chan []shared.Metric)
 	metrics := NewMetrics()
 	ticker := time.NewTicker(d)
 
@@ -122,6 +122,7 @@ func collector(
 				if err := collect(metrics); err != nil {
 					return err
 				}
+
 				packedMatrics, err := packMetrics(metrics)
 				if err != nil {
 					return err

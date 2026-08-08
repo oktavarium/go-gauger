@@ -29,4 +29,10 @@ func (c *Config) compare(another Config) {
 	if c.ReportInterval == 0 && another.ReportInterval != 0 {
 		c.ReportInterval = another.ReportInterval
 	}
+
+	if len(c.GrpcAddress) == 0 && len(another.GrpcAddress) != 0 {
+		c.GrpcAddress = another.GrpcAddress
+	}
+
+	c.UseGRPC = another.UseGRPC
 }

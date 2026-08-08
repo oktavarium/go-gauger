@@ -12,12 +12,14 @@ import (
 
 // config - структура хранения настроек сервиса
 type Config struct {
-	Address           string        `env:"ADDRESS" json:"address"`       // адрес сервиса сбора метрик
-	ReportIntervalInt int           `env:"REPORT_INTERVAL"`              // интервал отправки метрик
-	PollIntervalInt   int           `env:"POLL_INTERVAL"`                // интервал сбора метрик
-	HashKey           string        `env:"KEY"`                          // ключ аутентификации
-	RateLimit         int           `env:"RATE_LIMIT"`                   // ограничение на количество поток
-	CryptoKey         string        `env:"CRYPTO_KEY" json:"crypto_key"` // файл с публичным ключом сервера
+	Address           string        `env:"ADDRESS" json:"address"`           // адрес сервиса сбора метрик
+	GrpcAddress       string        `env:"GRPC_ADDRESS" json:"grpc_address"` // grpc-адрес сервиса сбора метрик
+	UseGRPC           bool          `env:"USE_GRPC"`                         // использовать grpc вместо http
+	ReportIntervalInt int           `env:"REPORT_INTERVAL"`                  // интервал отправки метрик
+	PollIntervalInt   int           `env:"POLL_INTERVAL"`                    // интервал сбора метрик
+	HashKey           string        `env:"KEY"`                              // ключ аутентификации
+	RateLimit         int           `env:"RATE_LIMIT"`                       // ограничение на количество поток
+	CryptoKey         string        `env:"CRYPTO_KEY" json:"crypto_key"`     // файл с публичным ключом сервера
 	ReportInterval    time.Duration `json:"report_interval"`
 	PollInterval      time.Duration `json:"poll_interval"`
 	Config            string        `env:"CONFIG"` // файл с конфигурацией

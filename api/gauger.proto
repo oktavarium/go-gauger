@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/oktavarium/go-gauger/api";
+
+import "google/protobuf/empty.proto";
+
+message Metric {
+    string id = 1;
+	string type = 2;
+	double value  = 3;
+}
+
+message GetAllResponse {
+    repeated Metric metrics = 2;
+}
+
+message GetRequest {
+    string type = 1;
+    string name = 2;
+}
+
+message GetResponse {
+    double value = 2;
+}
+
+message UpdateRequest {
+    Metric metric = 1;
+}
+
+message UpdatesRequest {
+    repeated Metric metrics = 1;
+}
+
+service Gauger {
+    rpc GetAll(google.protobuf.Empty) returns (GetAllResponse);
+    rpc Get(GetRequest) returns (GetResponse);
+    rpc Update(UpdateRequest)returns (google.protobuf.Empty);
+    rpc Updates(UpdatesRequest) returns (google.protobuf.Empty);
+}
+
+

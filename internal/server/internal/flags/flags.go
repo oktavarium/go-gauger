@@ -11,9 +11,10 @@ import (
 
 // config - структура хранения настроек сервиса
 type Config struct {
-	Address          string        `env:"ADDRESS" json:"address"` // адрес и порт работы сервиса метрик
-	LogLevel         string        `env:"LOGLEVEL"`               // уровень логирования
-	StoreIntervalInt int           `env:"STORE_INTERVAL"`         // интервал сброса метрик в файл
+	Address          string        `env:"ADDRESS" json:"address"`           // адрес и порт работы сервиса метрик
+	GrpcAddress      string        `env:"GRPC_ADDRESS" json:"grpc_address"` // адрес и порт grpc-сервера
+	LogLevel         string        `env:"LOGLEVEL"`                         // уровень логирования
+	StoreIntervalInt int           `env:"STORE_INTERVAL"`                   // интервал сброса метрик в файл
 	StoreInterval    time.Duration `json:"store_interval"`
 	FilePath         string        `env:"FILE_STORAGE_PATH" json:"store_file"` // путь к файлу хранилища
 	Restore          bool          `env:"RESTORE" json:"restore"`              // требуется ли восстановление при старте сервиса
@@ -21,6 +22,7 @@ type Config struct {
 	HashKey          string        `env:"KEY"`                                 // ключ аутентификации
 	CryptoKey        string        `env:"CRYPTO_KEY" json:"crypto_key"`        // файл с приватным ключом сервера
 	Config           string        `env:"CONFIG"`                              // файл с конфигурацией
+	TrustedSubnet    string        `env:"TRUSTE_SUBNET" json:"trusted_subnet"` // доверенная сеть
 }
 
 // loadConfig - загружает конфигурацию - из флагов и переменных окружения

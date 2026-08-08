@@ -11,7 +11,7 @@ func (c *Config) loadEnv() error {
 	if err := env.Parse(&config); err != nil {
 		return fmt.Errorf("error on parsing env parameters: %w", err)
 	}
-	fmt.Printf("%+v", config)
+
 	if len(config.Address) != 0 {
 		c.Address = config.Address
 	}
@@ -38,6 +38,10 @@ func (c *Config) loadEnv() error {
 
 	if config.ReportInterval != 0 {
 		c.ReportInterval = config.ReportInterval
+	}
+
+	if len(config.GrpcAddress) != 0 {
+		c.GrpcAddress = config.GrpcAddress
 	}
 
 	return nil

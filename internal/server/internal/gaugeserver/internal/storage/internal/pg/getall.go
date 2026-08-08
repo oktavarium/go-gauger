@@ -10,9 +10,25 @@ import (
 )
 
 func (s *storage) GetAll(ctx context.Context) ([]byte, error) {
-	allMetrics := make([]shared.Metric, 0)
 	var buffer bytes.Buffer
 	encoder := json.NewEncoder(&buffer)
+
+	allMetrics, err := s.GetAllMetrics(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error on getting metrics: %w", err)
+	}
+
+	for _, v := range allMetrics {
+		err := encoder.Encode(&v)
+		if err != nil {
+			return nil, fmt.Errorf("error on encoding data: %w", err)
+		}
+	}
+	return buffer.Bytes(), nil
+}
+
+func (s *storage) GetAllMetrics(ctx context.Context) ([]shared.Metric, error) {
+	allMetrics := make([]shared.Metric, 0)
 
 	rows, err := s.Query(ctx, "SELECT name, value FROM gauge")
 	if err != nil {
@@ -50,11 +66,5 @@ func (s *storage) GetAll(ctx context.Context) ([]byte, error) {
 		return nil, fmt.Errorf("error occured on selecting all counter: %w", err)
 	}
 
-	for _, v := range allMetrics {
-		err := encoder.Encode(&v)
-		if err != nil {
-			return nil, fmt.Errorf("error on encoding data: %w", err)
-		}
-	}
-	return buffer.Bytes(), nil
+	return allMetrics, nil
 }

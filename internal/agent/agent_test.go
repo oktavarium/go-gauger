@@ -44,12 +44,16 @@ func TestHashData(t *testing.T) {
 }
 
 func TestFanIn(t *testing.T) {
-	in1 := make(chan []byte, 1)
-	in2 := make(chan []byte, 1)
+	in1 := make(chan []shared.Metric, 1)
+	in2 := make(chan []shared.Metric, 1)
+
+	m := shared.Metric{
+		ID: "test",
+	}
 
 	out := fanIn(in1, in2)
-	d1 := []byte("test")
-	d2 := []byte("test")
+	d1 := []shared.Metric{m}
+	d2 := []shared.Metric{m}
 	in1 <- d1
 	in2 <- d2
 

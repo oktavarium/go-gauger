@@ -12,6 +12,7 @@ import (
 	"syscall"
 
 	"github.com/oktavarium/go-gauger/internal/agent/internal/flags"
+	"github.com/oktavarium/go-gauger/internal/shared"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -60,8 +61,15 @@ func Run() error {
 	unitedCh := fanIn(chMetrics, chPsMetrics)
 	for i := 0; i < flagsConfig.RateLimit; i++ {
 		eg.Go(func() error {
-			err := sender(egCtx, flagsConfig.Address, flagsConfig.HashKey, publicKey,
-				flagsConfig.ReportInterval, unitedCh)
+			err := sender(
+				egCtx,
+				flagsConfig.Address,
+				flagsConfig.GrpcAddress,
+				flagsConfig.UseGRPC,
+				flagsConfig.HashKey,
+				publicKey,
+				flagsConfig.ReportInterval,
+				unitedCh)
 			return err
 		})
 	}
@@ -74,12 +82,12 @@ func Run() error {
 }
 
 // fanIn - метод мультиплексирования входящих данных от множества
-func fanIn(chs ...<-chan []byte) <-chan []byte {
-	chOut := make(chan []byte, len(chs))
+func fanIn(chs ...<-chan []shared.Metric) <-chan []shared.Metric {
+	chOut := make(chan []shared.Metric, len(chs))
 	var wg sync.WaitGroup
 	wg.Add(len(chs))
 
-	output := func(ch <-chan []byte) {
+	output := func(ch <-chan []shared.Metric) {
 		defer wg.Done()
 		for v := range ch {
 			chOut <- v

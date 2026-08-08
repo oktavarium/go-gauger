@@ -29,12 +29,14 @@ func Run() error {
 	gs, err := gaugeserver.NewGaugerServer(
 		ctx,
 		flagsConfig.Address,
+		flagsConfig.GrpcAddress,
 		flagsConfig.FilePath,
 		flagsConfig.Restore,
 		flagsConfig.StoreInterval,
 		flagsConfig.DatabaseDSN,
 		flagsConfig.HashKey,
-		flagsConfig.CryptoKey)
+		flagsConfig.CryptoKey,
+		flagsConfig.TrustedSubnet)
 	if err != nil {
 		return fmt.Errorf("error on creating gaugeserver: %w", err)
 	}

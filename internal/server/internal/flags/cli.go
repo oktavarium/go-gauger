@@ -21,5 +21,9 @@ func (c *Config) parseCli() {
 		"server private key file")
 	flag.StringVar(&c.Config, "c", "",
 		"path to config")
+	flag.StringVar(&c.TrustedSubnet, "t", "",
+		"trusted subnet")
+	flag.StringVar(&c.GrpcAddress, "g", "localhost:3333",
+		"address for grpc server")
 	flag.Parse()
 }

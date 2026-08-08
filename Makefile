@@ -6,4 +6,9 @@ clean:
 	rm cover.out && rm agent && rm server
 build:
 	go build -o agent cmd/agent/main.go && go build -o server cmd/server/main.go
+gen:
+	go generate ./...
+
+all: gen build
+
 
